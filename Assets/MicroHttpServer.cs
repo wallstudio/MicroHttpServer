@@ -21,13 +21,13 @@ namespace UpHash
         }
         public delegate Response RequestedCallback(string uri, string postText);
 
+        public static IPAddress address { get { return Dns.GetHostAddresses(Dns.GetHostName()).FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork); } }
+        public const string port = "8080";
+
         static object locker = new object();
         static HttpListener listenrInstance;
         static Dictionary<string, RequestedCallback> callbacks = new Dictionary<string, RequestedCallback>();
         static Thread worker;
-
-        public static IPAddress address { get { return Dns.GetHostAddresses(Dns.GetHostName()).FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork); } }
-        public const string port = "8080";
 
 
         /// <summary>
@@ -122,6 +122,10 @@ namespace UpHash
             }
         }
 
+        /// <summary>
+        /// サーバーの機能を追加します。
+        /// </summary>
+        /// <param name="path">スキーム、ドメイン、/は不要</param>
         public static void AddFunction(string path, RequestedCallback callback)
         {
             lock(locker)
@@ -137,15 +141,15 @@ namespace UpHash
             }
         }
 
-        // #if UNITY_EDITOR
+        #if UNITY_EDITOR
         // [UnityEditor.MenuItem("MicroHttpServer/Test")]
-        // public static void Test()
-        // {
-        //     UnityWebRequest req = new UnityWebRequest("http://localhost:8080", "POST");
-        //     req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes("Hoge"));
-        //     req.downloadHandler = new DownloadHandlerBuffer();
-        //     req.SendWebRequest().completed += _ => Debug.Log(req.downloadHandler.text);
-        // }
-        // #endif
+        static void Test()
+        {
+            UnityWebRequest req = new UnityWebRequest("http://localhost:8080", "POST");
+            req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes("Hoge"));
+            req.downloadHandler = new DownloadHandlerBuffer();
+            req.SendWebRequest().completed += _ => Debug.Log(req.downloadHandler.text);
+        }
+        #endif
     }
 }
